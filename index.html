@@ -3,38 +3,574 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Список должников</title><style>
-    * {
-        box-sizing: border-box;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: Arial, sans-serif;
-        background: #111827;
-        color: white;
-        padding: 20px;
-    }
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #111827;
+    color: white;
+}
 
-    .container {
-        max-width: 800px;
-        margin: auto;
-    }
+.container {
+    max-width: 850px;
+    margin: auto;
+}
 
-    h1 {
-        text-align: center;
-        margin-bottom: 8px;
-    }
+h1 {
+    text-align: center;
+}
 
-    .subtitle {
-        text-align: center;
-        color: #aab2c0;
-        margin-bottom: 25px;
-    }
+.subtitle {
+    text-align: center;
+    color: #aab2c0;
+    margin-bottom: 25px;
+}
 
-    .card {
-        background: #1f2937;
-        border-radius: 16px;
+.card {
+    background: #1f2937;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+}
+
+.inputs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #374151;
+    border-radius: 10px;
+    background: #111827;
+    color: white;
+    font-size: 16px;
+}
+
+button {
+    border: 0;
+    border-radius: 10px;
+    padding: 13px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.add {
+    width: 100%;
+    margin-top: 15px;
+    background: #2563eb;
+}
+
+.delete {
+    background: #dc2626;
+}
+
+.debt {
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 12px;
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.name {
+    font-size: 21px;
+    font-weight: bold;
+}
+
+.data {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.box {
+    background: #1f2937;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.label {
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.value {
+    margin-top: 5px;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.total {
+    color: #4ade80;
+}
+
+.summary {
+    text-align: center;
+    font-size: 18px;
+}
+
+.summary span {
+    color: #4ade80;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.empty {
+    color: #9ca3af;
+    text-align: center;
+    padding: 20px;
+}
+
+@media (max-width: 700px) {
+    .inputs,
+    .data {
+        grid-template-columns: 1fr;
+    }
+}
+</style></head><body><div class="container"><h1>💰 Список должников</h1><p class="subtitle">
+Проценты начисляются автоматически каждую неделю
+</p><div class="card"><div class="inputs"><input
+id="name"
+type="text"
+placeholder="Имя должника"
+
+«»
+
+<input
+id="amount"
+type="number"
+min="0"
+placeholder="Сумма, грн"
+
+«»
+
+<input
+id="percent"
+type="number"
+min="0"
+step="0.01"
+placeholder="% в неделю"
+
+«»
+
+<input
+id="date"
+type="date"
+
+«»
+
+</div><button class="add" onclick="addDebtor()">
++ Добавить должника
+</button></div><div class="card summary">Общая сумма с процентами:
+
+<br><br>
+
+<span id="allTotal">
+0 грн
+</span></div><div class="card"><h2>Должники</h2><div id="list"></div></div></div><script>
+
+let debtors = JSON.parse(
+localStorage.getItem("debtors")
+) || [];
+
+
+function save() {
+
+localStorage.setItem(
+"debtors",
+JSON.stringify(debtors)
+);
+
+}
+
+
+function addDebtor() {
+
+const name =
+document.getElementById("name").value.trim();
+
+const amount =
+Number(
+document.getElementById("amount").value
+);
+
+const percent =
+Number(
+document.getElementById("percent").value
+);
+
+const date =
+document.getElementById("date").value;
+
+
+if (!name) {
+
+alert("Введите имя");
+
+return;
+
+}
+
+
+if (
+amount <= 0 ||
+isNaN(amount)
+) {
+
+alert("Введите сумму");
+
+return;
+
+}
+
+
+if (
+percent < 0 ||
+isNaN(percent)
+) {
+
+alert("Введите процент");
+
+return;
+
+}
+
+
+if (!date) {
+
+alert("Выберите дату");
+
+return;
+
+}
+
+
+debtors.push({
+
+name: name,
+
+amount: amount,
+
+percent: percent,
+
+date: date
+
+});
+
+
+save();
+
+render();
+
+
+document.getElementById("name").value = "";
+
+document.getElementById("amount").value = "";
+
+document.getElementById("percent").value = "";
+
+}
+
+
+function deleteDebtor(index) {
+
+if (
+confirm(
+"Удалить должника?"
+)
+) {
+
+debtors.splice(
+index,
+1
+);
+
+save();
+
+render();
+
+}
+
+}
+
+
+function getWeeks(date) {
+
+const start =
+new Date(
+date + "T00:00:00"
+);
+
+const now =
+new Date();
+
+const difference =
+
+now - start;
+
+
+const weeks =
+
+Math.floor(
+
+difference /
+
+(
+1000 *
+60 *
+60 *
+24 *
+7
+)
+
+);
+
+
+return Math.max(
+0,
+weeks
+);
+
+}
+
+
+function money(number) {
+
+return number.toLocaleString(
+"uk-UA",
+{
+
+minimumFractionDigits: 2,
+
+maximumFractionDigits: 2
+
+}
+);
+
+}
+
+
+function render() {
+
+const list =
+
+document.getElementById(
+"list"
+);
+
+
+list.innerHTML = "";
+
+
+let allTotal = 0;
+
+
+if (
+debtors.length === 0
+) {
+
+list.innerHTML = `
+
+<div class="empty">
+
+Пока нет должников
+
+</div>
+
+`;
+
+}
+
+
+debtors.forEach(
+function(
+debtor,
+index
+) {
+
+const weeks =
+
+getWeeks(
+debtor.date
+);
+
+
+const interest =
+
+debtor.amount *
+
+(
+debtor.percent /
+100
+) *
+
+weeks;
+
+
+const total =
+
+debtor.amount +
+
+interest;
+
+
+allTotal += total;
+
+
+list.innerHTML += `
+
+<div class="debt">
+
+<div class="top">
+
+<div class="name">
+
+${debtor.name}
+
+</div>
+
+<button
+
+class="delete"
+
+onclick="deleteDebtor(${index})"
+
+>
+
+Удалить
+
+</button>
+
+</div>
+
+
+<div class="data">
+
+
+<div class="box">
+
+<div class="label">
+
+Начальный долг
+
+</div>
+
+<div class="value">
+
+${money(
+debtor.amount
+)} грн
+
+</div>
+
+</div>
+
+
+<div class="box">
+
+<div class="label">
+
+Процент
+
+</div>
+
+<div class="value">
+
+${debtor.percent}% в неделю
+
+</div>
+
+</div>
+
+
+<div class="box">
+
+<div class="label">
+
+Прошло недель
+
+</div>
+
+<div class="value">
+
+${weeks}
+
+</div>
+
+</div>
+
+
+<div class="box">
+
+<div class="label">
+
+Сейчас должен
+
+</div>
+
+<div class="value total">
+
+${money(
+total
+)} грн
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+`;
+
+}
+);
+
+
+document.getElementById(
+"allTotal"
+).textContent =
+
+money(
+allTotal
+)
+
++ " грн";
+
+}
+
+
+document.getElementById(
+"date"
+).value =
+
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+render();
+
+</script></body>
+</html>        border-radius: 16px;
         padding: 20px;
         margin-bottom: 20px;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);

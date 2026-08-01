@@ -1,0 +1,497 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Список должников</title><style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Arial, sans-serif;
+        background: #111827;
+        color: white;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: auto;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #aab2c0;
+        margin-bottom: 25px;
+    }
+
+    .card {
+        background: #1f2937;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .inputs {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+    }
+
+    input {
+        width: 100%;
+        padding: 14px;
+        border: 1px solid #374151;
+        border-radius: 10px;
+        background: #111827;
+        color: white;
+        font-size: 16px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #3b82f6;
+    }
+
+    button {
+        border: none;
+        border-radius: 10px;
+        padding: 13px 18px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .add {
+        width: 100%;
+        margin-top: 15px;
+        background: #2563eb;
+    }
+
+    .add:hover {
+        background: #1d4ed8;
+    }
+
+    .debt {
+        background: #111827;
+        border: 1px solid #374151;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 12px;
+    }
+
+    .debt-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .name {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .delete {
+        background: #dc2626;
+        padding: 9px 13px;
+    }
+
+    .info {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .info-box {
+        background: #1f2937;
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .label {
+        color: #9ca3af;
+        font-size: 13px;
+    }
+
+    .value {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+
+    .total {
+        color: #4ade80;
+    }
+
+    .empty {
+        text-align: center;
+        color: #9ca3af;
+        padding: 20px;
+    }
+
+    .summary {
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .summary span {
+        color: #4ade80;
+        font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+        .inputs {
+            grid-template-columns: 1fr;
+        }
+
+        .info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style></head><body><div class="container"><h1>💰 Список должников</h1>
+
+<p class="subtitle">
+    Добавляй должников и автоматически считай сумму с процентами
+</p>
+
+<div class="card">
+
+    <div class="inputs">
+
+        <input
+            type="text"
+            id="name"
+            placeholder="Имя должника"
+        >
+
+        <input
+            type="number"
+            id="amount"
+            placeholder="Сумма долга"
+            min="0"
+        >
+
+        <input
+            type="number"
+            id="percent"
+            placeholder="Процент"
+            min="0"
+            step="0.01"
+        >
+
+    </div>
+
+    <button class="add" onclick="addDebtor()">
+        + Добавить должника
+    </button>
+
+</div>
+
+<div class="card summary">
+
+    Общая сумма с процентами:
+
+    <br><br>
+
+    <span id="allTotal">0 грн</span>
+
+</div>
+
+<div class="card">
+
+    <h2>Должники</h2>
+
+    <div id="list"></div>
+
+</div>
+
+</div><script>
+
+let debtors = JSON.parse(
+    localStorage.getItem("debtors")
+) || [];
+
+
+function save() {
+
+    localStorage.setItem(
+        "debtors",
+        JSON.stringify(debtors)
+    );
+
+}
+
+
+function addDebtor() {
+
+    const name =
+        document.getElementById("name").value.trim();
+
+    const amount =
+        Number(document.getElementById("amount").value);
+
+    const percent =
+        Number(document.getElementById("percent").value);
+
+
+    if (!name) {
+
+        alert("Введите имя должника");
+
+        return;
+
+    }
+
+
+    if (
+        amount <= 0 ||
+        isNaN(amount)
+    ) {
+
+        alert("Введите правильную сумму");
+
+        return;
+
+    }
+
+
+    if (
+        percent < 0 ||
+        isNaN(percent)
+    ) {
+
+        alert("Введите правильный процент");
+
+        return;
+
+    }
+
+
+    debtors.push({
+
+        name: name,
+
+        amount: amount,
+
+        percent: percent
+
+    });
+
+
+    save();
+
+    render();
+
+
+    document.getElementById("name").value = "";
+
+    document.getElementById("amount").value = "";
+
+    document.getElementById("percent").value = "";
+
+}
+
+
+function deleteDebtor(index) {
+
+    if (
+        confirm(
+            "Удалить этого должника?"
+        )
+    ) {
+
+        debtors.splice(index, 1);
+
+        save();
+
+        render();
+
+    }
+
+}
+
+
+function formatMoney(number) {
+
+    return number.toLocaleString(
+        "uk-UA",
+        {
+
+            minimumFractionDigits: 2,
+
+            maximumFractionDigits: 2
+
+        }
+    );
+
+}
+
+
+function render() {
+
+    const list =
+        document.getElementById("list");
+
+
+    const allTotal =
+        document.getElementById("allTotal");
+
+
+    list.innerHTML = "";
+
+
+    if (
+        debtors.length === 0
+    ) {
+
+        list.innerHTML = `
+
+            <div class="empty">
+
+                Пока нет должников
+
+            </div>
+
+        `;
+
+    }
+
+
+    let totalSum = 0;
+
+
+    debtors.forEach(
+        function(debtor, index) {
+
+            const finalAmount =
+
+                debtor.amount *
+
+                (
+                    1 +
+
+                    debtor.percent / 100
+                );
+
+
+            totalSum += finalAmount;
+
+
+            list.innerHTML += `
+
+                <div class="debt">
+
+                    <div class="debt-top">
+
+                        <div class="name">
+
+                            ${debtor.name}
+
+                        </div>
+
+                        <button
+
+                            class="delete"
+
+                            onclick="deleteDebtor(${index})"
+
+                        >
+
+                            Удалить
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="info">
+
+
+                        <div class="info-box">
+
+                            <div class="label">
+
+                                Долг
+
+                            </div>
+
+                            <div class="value">
+
+                                ${formatMoney(
+                                    debtor.amount
+                                )} грн
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-box">
+
+                            <div class="label">
+
+                                Процент
+
+                            </div>
+
+                            <div class="value">
+
+                                ${debtor.percent}%
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-box">
+
+                            <div class="label">
+
+                                Итог
+
+                            </div>
+
+                            <div class="value total">
+
+                                ${formatMoney(
+                                    finalAmount
+                                )} грн
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    allTotal.textContent =
+
+        formatMoney(totalSum)
+
+        + " грн";
+
+}
+
+
+render();
+
+</script></body>
+</html>

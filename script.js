@@ -24,16 +24,16 @@ function computeTotal(d){
   return { weeks: w, total };
 }
 
-async function save(){
+function save(){
   try{
-    await window.storage.set('debtors', JSON.stringify(debtors), false);
+    localStorage.setItem('debtors', JSON.stringify(debtors));
   }catch(e){ console.error('Ошибка сохранения', e); }
 }
 
-async function load(){
+function load(){
   try{
-    const res = await window.storage.get('debtors', false);
-    debtors = res ? JSON.parse(res.value) : [];
+    const raw = localStorage.getItem('debtors');
+    debtors = raw ? JSON.parse(raw) : [];
   }catch(e){
     debtors = [];
   }
@@ -124,4 +124,3 @@ form.addEventListener('submit', (e) => {
 });
 
 load();
-

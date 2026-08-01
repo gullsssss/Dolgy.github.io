@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Должники</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ЭКРАН БЛОКИРОВКИ -->
+  <div id="lockScreen" class="lock-screen">
+    <div class="lock-box">
+      <div class="lock-icon">🔒</div>
+      <h2 id="lockTitle">Введите PIN-код</h2>
+      <p id="lockSubtitle" class="lock-subtitle">Доступ к счёту защищён</p>
+      <input type="password" id="lockInput" inputmode="numeric" maxlength="8" placeholder="••••" autocomplete="off">
+      <div id="lockError" class="lock-error"></div>
+      <button id="lockSubmit" class="btn btn-primary btn-block">Продолжить</button>
+    </div>
+  </div>
+
+  <!-- ПРИЛОЖЕНИЕ -->
+  <div id="app" class="app">
+
+    <nav class="navbar">
+      <div class="navbar-brand">
+        <span class="navbar-mark">Д</span>
+        <span class="navbar-title">Должники<span class="navbar-title-accent">Банк</span></span>
+      </div>
+      <button id="pinBtn" class="navbar-pin" type="button" title="Настроить PIN-защиту">🔒</button>
+    </nav>
+
+    <div class="container">
+
+      <!-- БАЛАНСОВАЯ КАРТА -->
+      <section class="balance-card">
+        <div class="balance-card-top">
+          <span class="balance-card-label">Общий баланс к получению</span>
+          <span class="balance-card-chip">◆</span>
+        </div>
+        <div class="balance-card-value" id="grandTotal">0</div>
+        <div class="balance-card-bottom">
+          <div class="balance-card-stat">
+            <span class="stat-label">Должников</span>
+            <span class="stat-value" id="statCount">0</span>
+          </div>
+          <div class="balance-card-stat">
+            <span class="stat-label">Начислено %</span>
+            <span class="stat-value" id="statInterest">0</span>
+          </div>
+          <div class="balance-card-number">•••• •••• •••• ДОЛГ</div>
+        </div>
+      </section>
+
+      <!-- ПАНЕЛЬ НАСТРОЕК -->
+      <section class="settings-bar">
+        <div class="settings-field">
+          <label for="currencySelect">Валюта</label>
+          <select id="currencySelect">
+            <option value="₴">₴ Гривна</option>
+            <option value="₽">₽ Рубль</option>
+            <option value="$">$ Доллар</option>
+            <option value="€">€ Евро</option>
+          </select>
+        </div>
+        <div class="settings-field">
+          <label for="roundSelect">Округление</label>
+          <select id="roundSelect">
+            <option value="0.01">До копеек</option>
+            <option value="1">До целых</option>
+            <option value="10">До 10</option>
+            <option value="100">До 100</option>
+          </select>
+        </div>
+        <div class="settings-actions">
+          <button id="exportBtn" class="btn btn-ghost" type="button">⬇ Выписка</button>
+          <button id="importBtn" class="btn btn-ghost" type="button">⬆ Восстановить</button>
+          <input type="file" id="importFile" accept="application/json" hidden>
+        </div>
+      </section>
+
+      <!-- СПИСОК ДОЛЖНИКОВ -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Операции</h2>
+          <span class="panel-header-sub" id="rowsCount">0 записей</span>
+        </div>
+
+        <div class="table-head">
+          <div>Должник</div>
+          <div>Сумма</div>
+          <div>Ставка</div>
+          <div>Недель</div>
+          <div>К получению</div>
+          <div>Статус</div>
+          <div></div>
+        </div>
+
+        <div id="rows" class="rows"></div>
+
+        <div id="emptyState" class="empty-state">
+          Пока никто вам не должен — добавьте первую запись ниже
+        </div>
+      </section>
+
+      <!-- НОВАЯ ОПЕРАЦИЯ -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Новая операция</h2>
+        </div>
+        <form id="addForm" class="add-form">
+          <div class="settings-field">
+            <label for="fName">Имя должника</label>
+            <input type="text" id="fName" placeholder="Иван Петров" required>
+          </div>
+          <div class="settings-field">
+            <label for="fAmount">Сумма</label>
+            <input type="number" id="fAmount" placeholder="10000" min="0" step="any" required>
+          </div>
+          <div class="settings-field">
+            <label for="fRate">Ставка, %/нед.</label>
+            <input type="number" id="fRate" placeholder="5" min="0" step="any" required>
+          </div>
+          <div class="settings-field">
+            <label for="fDate">Дата выдачи</label>
+            <input type="date" id="fDate" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Оформить</button>
+        </form>
+      </section>
+
+      <p class="note">
+        Проценты начисляются понедельно: после каждой недели сумма округляется, и следующая неделя считается уже от округлённого значения.
+        Данные хранятся только в вашем браузере на этом устройстве. PIN защищает от посторонних глаз, но не шифрует данные.
+      </p>
+
+    </div>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
